@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malosha Polling System</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to bottom, #007bff, #0056b3);
+            color: #fff;
+        }
+
+        .container {
+            background: #fff;
+            color: #333;
+            text-align: center;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            width: 350px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.4);
+        }
+
+        .poll-container {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            color: #333;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .ellipsis-menu {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            cursor: pointer;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 40px;
+            left: 10px;
+            background: #fff;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            z-index: 100;
+            padding: 10px;
+        }
+
+        .dropdown a {
+            text-decoration: none;
+            color: #333;
+            display: block;
+            padding: 8px 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .dropdown a:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown a:hover {
+            background: #007bff;
+            color: white;
+        }
+
+        .poll-container h1 {
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .poll-option {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .poll-option:hover {
+            background: #e0e0e0;
+        }
+
+        .poll-option input {
+            margin-right: 10px;
+            accent-color: #007bff;
+        }
+
+        .poll-container button {
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .poll-container button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Welcome Page -->
+    <div class="container" id="welcomePage">
+        <h1>Welcome to Malosha Polling System</h1>
+        <p>Your voice matters. Cast your vote!</p>
+        <button onclick="openPoll()">Continue</button>
+    </div>
+
+    <!-- Poll Page -->
+    <div class="poll-container" id="pollPage">
+        <!-- Ellipsis Menu -->
+        <div class="ellipsis-menu" onclick="toggleMenu()">&#x22EE;</div>
+        <div class="dropdown" id="menuDropdown">
+            <a href="#">Home</a>
+            <a href="#">Settings</a>
+            <a href="#">Logout</a>
+        </div>
+
+        <h1>What stage of life are you in?</h1>
+        <div class="poll-option">
+            <input type="radio" id="optionA" name="vote" value="A. Married Woman">
+            <label for="optionA">A. Married Woman (Mke)</label>
+        </div>
+        <div class="poll-option">
+            <input type="radio" id="optionB" name="vote" value="B. Married Man">
+            <label for="optionB">B. Married Man (Mume)</label>
+        </div>
+        <div class="poll-option">
+            <input type="radio" id="optionC" name="vote" value="C. In a Relationship">
+            <label for="optionC">C. In a Relationship (Una Moto)</label>
+        </div>
+        <div class="poll-option">
+            <input type="radio" id="optionD" name="vote" value="D. Single">
+            <label for="optionD">D. Single (Upo Upo Tu)</label>
+        </div>
+        <button onclick="submitVote()">Submit Vote</button>
+    </div>
+
+    <script>
+        // Function to navigate to the poll page
+        function openPoll() {
+            document.getElementById('welcomePage').style.display = 'none';
+            document.getElementById('pollPage').style.display = 'block';
+        }
+
+        // Function to toggle the ellipsis dropdown menu
+        function toggleMenu() {
+            const menuDropdown = document.getElementById("menuDropdown");
+            menuDropdown.style.display = menuDropdown.style.display === "block" ? "none" : "block";
+        }
+
+        // Function to handle vote submission
+        function submitVote() {
+            const selectedOption = document.querySelector('input[name="vote"]:checked');
+            if (!selectedOption) {
+                alert("Please select an option before submitting your vote.");
+                return;
+            }
+            alert(`Thank you for voting: ${selectedOption.value}`);
+        }
+    </script>
+</body>
+</html>
