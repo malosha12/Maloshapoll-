@@ -1,212 +1,436 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sw">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Malosha Polling System</title>
+    <title>Kusanya Hela ya Umeme</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
+        /* CSS yako haijabadilika */
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(to bottom, #007bff, #0056b3);
-            color: #fff;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
         }
 
         .container {
-            background: #fff;
-            color: #333;
-            text-align: center;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-            width: 350px;
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
+            color: #4CAF50;
+            margin-bottom: 15px;
         }
 
-        p {
-            font-size: 16px;
-            margin-bottom: 20px;
-            color: #555;
+        .form-section input, .form-section button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
 
-        button {
-            background-color: #007bff;
+        .form-section button {
+            background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 16px;
             cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
-            transition: all 0.3s ease;
         }
 
-        button:hover {
-            background-color: #0056b3;
-            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.4);
+        .form-section button:hover {
+            background-color: #45a049;
         }
 
-        .poll-container {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
+        table {
             width: 100%;
-            height: 100%;
-            background: #fff;
-            color: #333;
-            padding: 20px;
-            box-sizing: border-box;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 
-        .ellipsis-menu {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            cursor: pointer;
-            font-size: 24px;
-            color: #333;
+        table, th, td {
+            border: 1px solid #ddd;
         }
 
-        .dropdown {
-            display: none;
-            position: absolute;
-            top: 40px;
-            left: 10px;
-            background: #fff;
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            z-index: 100;
-            padding: 10px;
+        th, td {
+            padding: 12px;
+            text-align: left;
         }
 
-        .dropdown a {
-            text-decoration: none;
-            color: #333;
-            display: block;
-            padding: 8px 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .dropdown a:last-child {
-            border-bottom: none;
-        }
-
-        .dropdown a:hover {
-            background: #007bff;
+        th {
+            background-color: #4CAF50;
             color: white;
         }
 
-        .poll-container h1 {
-            font-size: 20px;
-            text-align: center;
+        td {
+            background-color: #f9f9f9;
         }
 
-        .poll-option {
-            margin: 10px 0;
+        tr:hover {
+            background-color: #d3f8d3;
+        }
+
+        .delete-btn, .edit-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin: 5px;
+            border-radius: 5px;
+        }
+
+        .edit-btn {
+            background-color: #4CAF50;
+        }
+
+        .delete-btn:hover {
+            background-color: #c13430;
+        }
+
+        .edit-btn:hover {
+            background-color: #45a049;
+        }
+
+        .reminder {
+            color: red;
+            font-weight: bold;
+        }
+
+        .tenant-list-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .show-tenants-btn {
+            background-color: #008CBA;
+            color: white;
+            border: none;
             padding: 10px;
             border-radius: 5px;
-            background: #f0f0f0;
-            display: flex;
-            align-items: center;
             cursor: pointer;
         }
 
-        .poll-option:hover {
-            background: #e0e0e0;
-        }
-
-        .poll-option input {
-            margin-right: 10px;
-            accent-color: #007bff;
-        }
-
-        .poll-container button {
-            margin-top: 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        .poll-container button:hover {
-            background-color: #0056b3;
+        .show-tenants-btn:hover {
+            background-color: #007B9A;
         }
     </style>
 </head>
 <body>
-    <!-- Welcome Page -->
-    <div class="container" id="welcomePage">
-        <h1>Welcome to Malosha Polling System</h1>
-        <p>Your voice matters. Cast your vote!</p>
-        <button onclick="openPoll()">Continue</button>
+    <div class="container">
+        <h1>Kusanya Hela ya Umeme</h1>
+
+        <div class="form-section">
+            <!-- Kipengele cha Jina -->
+            <input type="text" id="fullName" placeholder="Jina kamili">
+            <!-- Kipengele cha Kiasi alichotoa (Pesa) -->
+            <input type="number" id="amount" placeholder="Pesa aliyotoa (Tsh)" step="0.01" min="0">
+            <!-- Kipengele cha Tarehe kwa calendar -->
+            <input type="date" id="paymentDate" placeholder="Ingiza tarehe (mm/dd/yyyy)">
+            <button id="addPaymentButton">Ongeza Malipo</button>
+        </div>
+
+        <h2>Orodha ya Wapangaji</h2>
+
+        <div class="form-section">
+            <input type="text" id="tenantName" placeholder="Ingiza jina la mpangaji">
+            <button id="addTenantButton">Ongeza Mpangaji</button>
+        </div>
+
+        <button class="show-tenants-btn" id="showTenantsButton">Ona Majina Yote</button>
+
+        <div class="tenant-list-container" id="tenantListContainer">
+            <table id="tenantTable">
+                <thead>
+                    <tr>
+                        <th>Jina Kamili</th>
+                        <th>Ametoa?</th>
+                        <th>Vitendo</th>
+                    </tr>
+                </thead>
+                <tbody id="tenantTableBody">
+                    <!-- Wapangaji watakavyo onyeshwa hapa -->
+                </tbody>
+            </table>
+        </div>
+
+        <table id="paymentsTable">
+            <thead>
+                <tr>
+                    <th>Jina Kamili</th>
+                    <th>Pesa Aliyotoa</th>
+                    <th>Tarehe na Siku</th>
+                    <th>Reminder</th>
+                    <th>Vitendo</th>
+                </tr>
+            </thead>
+            <tbody id="paymentsTableBody">
+                <!-- Payments will be listed here -->
+            </tbody>
+        </table>
     </div>
 
-    <!-- Poll Page -->
-    <div class="poll-container" id="pollPage">
-        <!-- Ellipsis Menu -->
-        <div class="ellipsis-menu" onclick="toggleMenu()">&#x22EE;</div>
-        <div class="dropdown" id="menuDropdown">
-            <a href="#">Home</a>
-            <a href="#">Settings</a>
-            <a href="#">Logout</a>
-        </div>
+    <script type="module">
+        // Import functions kutoka Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        <h1>What stage of life are you in?</h1>
-        <div class="poll-option">
-            <input type="radio" id="optionA" name="vote" value="A. Married Woman">
-            <label for="optionA">A. Married Woman (Mke)</label>
-        </div>
-        <div class="poll-option">
-            <input type="radio" id="optionB" name="vote" value="B. Married Man">
-            <label for="optionB">B. Married Man (Mume)</label>
-        </div>
-        <div class="poll-option">
-            <input type="radio" id="optionC" name="vote" value="C. In a Relationship">
-            <label for="optionC">C. In a Relationship (Una Moto)</label>
-        </div>
-        <div class="poll-option">
-            <input type="radio" id="optionD" name="vote" value="D. Single">
-            <label for="optionD">D. Single (Upo Upo Tu)</label>
-        </div>
-        <button onclick="submitVote()">Submit Vote</button>
-    </div>
+        // Firebase Configuration yako
+        const firebaseConfig = {
+            apiKey: "AIzaSyDbZylDCIImdwJGD-VxmNISe4w09iz2ZMA",
+            authDomain: "never-8f97f.firebaseapp.com",
+            projectId: "never-8f97f",
+            storageBucket: "never-8f97f.appspot.com",
+            messagingSenderId: "617627114655",
+            appId: "1:617627114655:web:b3446713cdca24f1b556aa",
+            measurementId: "G-NDXE76XB5V",
+            databaseURL: "https://never-8f97f-default-rtdb.europe-west1.firebasedatabase.app/"
+        };
 
-    <script>
-        // Function to navigate to the poll page
-        function openPoll() {
-            document.getElementById('welcomePage').style.display = 'none';
-            document.getElementById('pollPage').style.display = 'block';
-        }
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
 
-        // Function to toggle the ellipsis dropdown menu
-        function toggleMenu() {
-            const menuDropdown = document.getElementById("menuDropdown");
-            menuDropdown.style.display = menuDropdown.style.display === "block" ? "none" : "block";
-        }
+        // Vitufe vya kufanya vitendo
+        const addPaymentButton = document.getElementById("addPaymentButton");
+        const addTenantButton = document.getElementById("addTenantButton");
+        const showTenantsButton = document.getElementById("showTenantsButton");
 
-        // Function to handle vote submission
-        function submitVote() {
-            const selectedOption = document.querySelector('input[name="vote"]:checked');
-            if (!selectedOption) {
-                alert("Please select an option before submitting your vote.");
+        // Kazi ya kuongeza malipo
+        addPaymentButton.addEventListener("click", async () => {
+            const fullName = document.getElementById("fullName").value;
+            const amount = document.getElementById("amount").value;
+            const paymentDate = document.getElementById("paymentDate").value;
+
+            if (fullName.trim() === "" || amount.trim() === "" || paymentDate.trim() === "") {
+                alert("Tafadhali jaza sehemu zote!");
                 return;
             }
-            alert(`Thank you for voting: ${selectedOption.value}`);
+
+            const payment = {
+                fullName: fullName,
+                amount: parseFloat(amount),
+                paymentDate: paymentDate,
+                reminderSent: false,
+            };
+
+            // Hifadhi malipo kwenye Firebase
+            const paymentRef = ref(database, 'payments/' + fullName);
+            await set(paymentRef, payment);
+
+            // Ongeza mpangaji kwenye orodha ya wapangaji
+            await addTenantToList(fullName);
+
+            // Safisha fomu
+            document.getElementById("fullName").value = "";
+            document.getElementById("amount").value = "";
+            document.getElementById("paymentDate").value = "";
+
+            // Onyesha malipo yaliyohifadhiwa
+            await loadPayments();
+        });
+
+        // Kazi ya kuongeza mpangaji
+        addTenantButton.addEventListener("click", async () => {
+            const tenantName = document.getElementById("tenantName").value.trim();
+
+            if (tenantName === "") {
+                alert("Tafadhali ingiza jina la mpangaji.");
+                return;
+            }
+
+            const tenantRef = ref(database, 'tenants/' + tenantName);
+            const snapshot = await get(tenantRef);
+
+            if (!snapshot.exists()) {
+                await set(tenantRef, { name: tenantName, paid: false });
+            }
+
+            // Safisha fomu
+            document.getElementById("tenantName").value = "";
+
+            await loadTenantList(); // Onyesha orodha ya wapangaji tena
+        });
+
+        // Kazi ya kuongeza mpangaji kwenye orodha
+        async function addTenantToList(fullName) {
+            const tenantRef = ref(database, 'tenants/' + fullName);
+            const snapshot = await get(tenantRef);
+
+            if (!snapshot.exists()) {
+                await set(tenantRef, { name: fullName, paid: false });
+            }
+
+            await loadTenantList(); // Onyesha orodha ya wapangaji tena
         }
+
+        // Kazi ya kupakia malipo kutoka kwa Firebase
+        async function loadPayments() {
+            const paymentsRef = ref(database, 'payments');
+            const snapshot = await get(paymentsRef);
+            const tableBody = document.getElementById("paymentsTableBody");
+            tableBody.innerHTML = "";
+
+            if (snapshot.exists()) {
+                const payments = snapshot.val();
+
+                Object.keys(payments).forEach((key) => {
+                    const payment = payments[key];
+                    const paymentDate = new Date(payment.paymentDate);
+                    const today = new Date();
+                    const daysSincePayment = Math.ceil((today - paymentDate) / (1000 * 3600 * 24));
+
+                    // Pata siku ya wiki
+                    const dayNames = ["Jumapili", "Jumatatu", "Jumanne", "Jumatano", "Alhamisi", "Ijumaa", "Jumamosi"];
+                    const dayName = dayNames[paymentDate.getDay()];
+
+                    // Hesabu siku zilizobaki kwa kumbusho
+                    const remainingDays = 7 - daysSincePayment;
+
+                    const reminderMessage = (remainingDays <= 0 && !payment.reminderSent)
+                        ? `<span class="reminder">Tafadhali kulipa sasa! (Jumapili)</span>`
+                        : (remainingDays > 0
+                            ? `<span class="reminder">Bado ${remainingDays} siku kabla ya kulipa tena.</span>`
+                            : "");
+
+                    const row = document.createElement("tr");
+
+                    row.innerHTML = `
+                        <td>${payment.fullName}</td>
+                        <td>${payment.amount.toFixed(2)}</td>
+                        <td>${paymentDate.toLocaleDateString('sw-TZ')} (${dayName})</td>
+                        <td>${reminderMessage}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editPayment('${key}')">Hariri</button>
+                            <button class="delete-btn" onclick="deletePayment('${key}')">Futa</button>
+                        </td>
+                    `;
+
+                    tableBody.appendChild(row);
+                });
+            } else {
+                console.log("Hakuna malipo yaliyohifadhiwa.");
+            }
+        }
+
+        // Kazi ya kupakia orodha ya wapangaji kutoka kwa Firebase
+        async function loadTenantList() {
+            const tenantsRef = ref(database, 'tenants');
+            const snapshot = await get(tenantsRef);
+            const tenantTableBody = document.getElementById("tenantTableBody");
+            tenantTableBody.innerHTML = "";
+
+            if (snapshot.exists()) {
+                const tenants = snapshot.val();
+
+                Object.keys(tenants).forEach((key, index) => {
+                    const tenant = tenants[key];
+                    tenantTableBody.innerHTML += `
+                        <tr>
+                            <td>${tenant.name}</td>
+                            <td>
+                                <input type="checkbox" 
+                                       ${tenant.paid ? 'checked' : ''} 
+                                       onchange="togglePaymentStatus('${key}')">
+                            </td>
+                            <td>
+                                <button class="edit-btn" onclick="editTenant('${key}')">Hariri</button>
+                                <button class="delete-btn" onclick="deleteTenant('${key}')">Futa</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else {
+                console.log("Hakuna wapangaji waliyohifadhiwa.");
+            }
+        }
+
+        // Kazi ya kufuta malipo
+        async function deletePayment(key) {
+            const paymentRef = ref(database, 'payments/' + key);
+            await remove(paymentRef);
+            await loadPayments();
+        }
+
+        // Kazi ya kuhariri malipo
+        async function editPayment(key) {
+            const paymentRef = ref(database, 'payments/' + key);
+            const snapshot = await get(paymentRef);
+
+            if (snapshot.exists()) {
+                const payment = snapshot.val();
+                document.getElementById("fullName").value = payment.fullName;
+                document.getElementById("amount").value = payment.amount;
+                document.getElementById("paymentDate").value = payment.paymentDate;
+
+                await deletePayment(key); // Futa malipo ya zamani
+            }
+        }
+
+        // Kazi ya kufuta mpangaji
+        async function deleteTenant(key) {
+            const tenantRef = ref(database, 'tenants/' + key);
+            await remove(tenantRef);
+            await loadTenantList();
+        }
+
+        // Kazi ya kuhariri mpangaji
+        async function editTenant(key) {
+            const tenantRef = ref(database, 'tenants/' + key);
+            const snapshot = await get(tenantRef);
+
+            if (snapshot.exists()) {
+                const tenant = snapshot.val();
+                const newTenantName = prompt("Badilisha jina la mpangaji:", tenant.name);
+
+                if (newTenantName && newTenantName.trim() !== "") {
+                    await set(tenantRef, { name: newTenantName.trim(), paid: tenant.paid });
+                    await loadTenantList();
+                }
+            }
+        }
+
+        // Kazi ya kubadilisha hali ya malipo ya mpangaji
+        async function togglePaymentStatus(key) {
+            const tenantRef = ref(database, 'tenants/' + key);
+            const snapshot = await get(tenantRef);
+
+            if (snapshot.exists()) {
+                const tenant = snapshot.val();
+                await set(tenantRef, { name: tenant.name, paid: !tenant.paid });
+                await loadTenantList();
+            }
+        }
+
+        // Kazi ya kuonyesha/kuficha orodha ya wapangaji
+        showTenantsButton.addEventListener("click", () => {
+            const tenantListContainer = document.getElementById("tenantListContainer");
+            const button = document.querySelector(".show-tenants-btn");
+
+            if (tenantListContainer.style.display === "none") {
+                tenantListContainer.style.display = "block";
+                button.innerHTML = "Ficha Majina Yote";
+            } else {
+                tenantListContainer.style.display = "none";
+                button.innerHTML = "Ona Majina Yote";
+            }
+        });
+
+        // Pakia malipo na wapangaji wakati ukurasa unapopakiwa
+        document.addEventListener("DOMContentLoaded", () => {
+            loadPayments();
+            loadTenantList();
+        });
     </script>
 </body>
 </html>
