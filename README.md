@@ -1,2 +1,2 @@
-# Maloshapoll-
-Malosha polling app
+#malosha x and w poll
+Malosha x and w poll
