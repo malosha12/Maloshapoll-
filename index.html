@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mfumo wa Kupiga Kura</title>
-    <!-- Firebase v8 SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
@@ -18,6 +17,8 @@
             --text-secondary: #7F8C8D;
             --danger-color: #E74C3C;
             --success-color: #27AE60;
+            --highlight-max: #FFD700;
+            --highlight-min: #D3D3D3;
         }
 
         body {
@@ -108,6 +109,16 @@
             cursor: default;
         }
 
+        .poll-option.most-voted {
+            border-color: var(--highlight-max);
+            background-color: rgba(255, 215, 0, 0.1);
+        }
+
+        .poll-option.least-voted {
+            border-color: var(--highlight-min);
+            background-color: rgba(211, 211, 211, 0.1);
+        }
+
         .poll-option-text {
             font-size: 16px;
             flex-grow: 1;
@@ -163,11 +174,11 @@
         }
 
         .total-votes {
-            display: none;
             font-size: 14px;
             color: var(--text-secondary);
             margin-top: 20px;
             text-align: center;
+            display: none; /* Hidden by default, shown based on visibility */
         }
 
         .error-message {
@@ -405,7 +416,7 @@
             font-size: 18px;
         }
 
-        .password-modal {
+        .password-modal, .error-modal {
             display: none;
             position: fixed;
             top: 0;
@@ -419,7 +430,7 @@
             animation: fadeIn 0.3s ease-in-out;
         }
 
-        .password-modal-content {
+        .password-modal-content, .error-modal-content {
             background: linear-gradient(135deg, #ffffff, #f0f4ff);
             padding: 40px;
             border-radius: 20px;
@@ -428,7 +439,6 @@
             max-width: 450px;
             text-align: center;
             animation: slideUp 0.5s ease-in-out;
-            position: relative;
         }
 
         @keyframes slideUp {
@@ -436,7 +446,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .password-modal-content h2 {
+        .password-modal-content h2, .error-modal-content h2 {
             margin: 0 0 25px;
             font-size: 26px;
             color: var(--primary-color);
@@ -463,7 +473,13 @@
             outline: none;
         }
 
-        .password-modal-content button {
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .password-modal-content button, .error-modal-content button {
             background: linear-gradient(90deg, var(--primary-color), #0056b3);
             color: white;
             border: none;
@@ -473,13 +489,16 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            flex: 1;
         }
 
-        .password-modal-content button:hover {
+        .error-modal-content p {
+            color: var(--danger-color);
+            font-size: 16px;
+            margin: 20px 0;
+        }
+
+        .password-modal-content button:hover, .error-modal-content button:hover {
             background: linear-gradient(90deg, #0056b3, var(--primary-color));
             transform: scale(1.05);
             box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
@@ -497,15 +516,11 @@
             --hover-color: #333;
         }
 
-        body.dark-mode .container {
+        body.dark-mode .container, body.dark-mode .admin-section {
             background-color: #2D2D2D;
         }
 
-        body.dark-mode .admin-section {
-            background-color: #2D2D2D;
-        }
-
-        body.dark-mode .password-modal-content {
+        body.dark-mode .password-modal-content, body.dark-mode .error-modal-content {
             background: linear-gradient(135deg, #2D2D2D, #444);
         }
 
@@ -535,8 +550,8 @@
 <body>
     <div class="container">
         <div class="style-toggle">
-            <button class="toggle-btn active" data-theme="twitter">OLD STYLE     </button>
-            <button class="toggle-btn" data-theme="whatsapp">MORDEN STYLE   </button>
+            <button class="toggle-btn active" data-theme="twitter">OLD STYLE</button>
+            <button class="toggle-btn" data-theme="whatsapp">MORDEN STYLE</button>
         </div>
 
         <button class="create-poll-btn"><span class="icon">✍️</span>malosha use only</button>
@@ -544,7 +559,7 @@
         <div class="create-poll-form">
             <div class="form-group">
                 <label class="form-label" for="poll-title"><span class="icon">❓</span>Swali la Kura:</label>
-                <input type="text" id="poll-title" class="form-input" placeholder="Andika swali lako hapa...">
+                <input type="text" id="poll-title" class="form-input" placeholder="Andika swali lako hapa">
             </div>
             <div class="form-group">
                 <label class="form-label"><span class="icon">✅</span>Chaguo:</label>
@@ -572,13 +587,22 @@
                     <option value="years">Mwaka</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label class="form-label" for="results-visibility"><span class="icon">👁️</span>Matokeo Yaonekane:</label>
+                <select id="results-visibility" class="form-select">
+                    <option value="always">Muda Wote</option>
+                    <option value="after-poll-ends">Hadi Kura Imalize</option>
+                    <option value="admin-only">Admin Pekee</option>
+                    <option value="after-voting">Baada ya Kupiga Kura</option>
+                </select>
+            </div>
             <button class="submit-poll-btn"><span class="icon">🚀</span>Tengeneza Kura</button>
         </div>
 
         <div class="edit-poll-form">
             <div class="form-group">
                 <label class="form-label" for="edit-poll-title"><span class="icon">❓</span>Swali la Kura:</label>
-                <input type="text" id="edit-poll-title" class="form-input" placeholder="Andika swali lako hapa...">
+                <input type="text" id="edit-poll-title" class="form-input" placeholder="Andika swali lako hapa">
             </div>
             <div class="form-group">
                 <label class="form-label" for="edit-poll-duration"><span class="icon">⏳</span>Muda wa Kura:</label>
@@ -597,6 +621,15 @@
                 <div id="edit-options-container"></div>
                 <button class="add-option-btn"><span class="icon">➕</span>Ongeza Chaguo</button>
             </div>
+            <div class="form-group">
+                <label class="form-label" for="edit-results-visibility"><span class="icon">👁️</span>Matokeo Yaonekane:</label>
+                <select id="edit-results-visibility" class="form-select">
+                    <option value="always">Muda Wote</option>
+                    <option value="after-poll-ends">Hadi Kura Imalize</option>
+                    <option value="admin-only">Admin Pekee</option>
+                    <option value="after-voting">Baada ya Kupiga Kura</option>
+                </select>
+            </div>
             <button class="update-poll-btn"><span class="icon">🔄</span>Rekebisha Kura</button>
         </div>
 
@@ -607,7 +640,7 @@
                     <div class="time-remaining"></div>
                 </div>
                 <span class="icon">🕒</span>
-            </div>
+    </div>
             <div class="poll-info">
                 <span class="poll-author"></span>
                 <span class="poll-date"></span>
@@ -637,12 +670,22 @@
         <div class="password-modal-content">
             <h2><span class="icon">🔒</span>TRY ANY PASSWORD</h2>
             <input type="password" id="password-input" placeholder="Nenosiri">
-            <button id="password-submit"><span class="icon">✅</span>Thibitisha</button>
+            <div class="modal-buttons">
+                <button class="back-btn" id="password-back-btn"><span class="icon">⬅️</span>Rudi Nyuma</button>
+                <button id="password-submit"><span class="icon">✅</span>Thibitisha</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="error-modal" id="error-modal">
+        <div class="error-modal-content">
+            <h2><span class="icon">⚠️</span>Hatakiwi</h2>
+            <p>Nenosiri sio sahihi! Tafadhali wasiliana na David Malosha Amos kwa namba <strong>0785197452</strong> au <strong>0623715858</strong> kupitia WhatsApp ili upate nenosiri sahihi.</p>
+            <button id="error-close-btn"><span class="icon">✖️</span>Funga</button>
         </div>
     </div>
 
     <script>
-        // Firebase Config with corrected databaseURL
         const firebaseConfig = {
             apiKey: "AIzaSyBxibHHgfBunsCVowPCKWDIV2K3kG9OviE",
             authDomain: "x-poll-6dc62.firebaseapp.com",
@@ -654,7 +697,6 @@
             measurementId: "G-T5N05Z0ETF"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
@@ -671,10 +713,11 @@
             duration: 5,
             durationUnit: 'minutes',
             endTime: null,
-            isExpired: false
+            isExpired: false,
+            resultsVisibility: 'after-voting',
+            voters: {}
         };
 
-        // Wait for DOM to load before accessing elements
         document.addEventListener('DOMContentLoaded', () => {
             const pollOptionsEl = document.getElementById('poll-options');
             const voteBtn = document.getElementById('vote-btn');
@@ -694,9 +737,12 @@
             const passwordModal = document.getElementById('password-modal');
             const passwordInput = document.getElementById('password-input');
             const passwordSubmit = document.getElementById('password-submit');
+            const passwordBackBtn = document.getElementById('password-back-btn');
             const backBtn = document.getElementById('back-btn');
             const lightModeBtn = document.getElementById('light-mode');
             const darkModeBtn = document.getElementById('dark-mode');
+            const errorModal = document.getElementById('error-modal');
+            const errorCloseBtn = document.getElementById('error-close-btn');
 
             let selectedOption = null;
             let currentPoll = null;
@@ -705,31 +751,44 @@
             let hasVoted = false;
             let isAdmin = false;
             const CREATE_POLL_PASSWORD = "1340";
+            let userIp = null;
 
             function init() {
-                loadPollsFromFirebase();
+                getUserIp(ip => {
+                    userIp = ip;
+                    loadPollsFromFirebase();
+                });
                 loadHistoryFromFirebase();
                 setupEventListeners();
                 checkPollExpiration();
                 updateTimeRemaining();
             }
 
+            function sanitizeKey(key) {
+                return key.replace(/[.#$/[\]]/g, '_');
+            }
+
             function loadPollsFromFirebase() {
-                db.ref('polls').once('value', (snapshot) => {
+                db.ref('polls').on('value', (snapshot) => {
                     const data = snapshot.val();
                     if (data) {
-                        allPolls = Object.values(data);
-                        if (allPolls.length > 0) {
-                            currentPoll = allPolls[0]; // Load the first poll as active
-                            renderPoll();
-                        }
+                        allPolls = Object.values(data).map(poll => ({
+                            ...poll,
+                            voters: poll.voters || {}
+                        }));
+                        currentPoll = allPolls[0];
+                        renderPoll();
+                        if (shouldShowResults()) showResults();
+                        if (isAdmin) updateAdminPanel();
                     } else {
                         allPolls = [defaultPoll];
                         allPolls[0].endTime = new Date().getTime() + defaultPoll.duration * 60000;
                         currentPoll = allPolls[0];
                         savePollsToFirebase();
                         renderPoll();
+                        if (shouldShowResults()) showResults();
                     }
+                    checkIfUserVoted();
                 });
             }
 
@@ -737,7 +796,7 @@
                 db.ref('history').once('value', (snapshot) => {
                     const data = snapshot.val();
                     pollHistory = data ? Object.values(data) : [];
-                    if (isAdmin && adminHistoryList) updateAdminPanel();
+                    if (isAdmin) updateAdminPanel();
                 });
             }
 
@@ -749,30 +808,21 @@
                 db.ref('history').set(pollHistory);
             }
 
-            function saveVoteToFirebase(pollId) {
-                getVotedPollsFromFirebase((votedPolls) => {
-                    if (!votedPolls.includes(pollId)) {
-                        votedPolls.push(pollId);
-                        db.ref('votedPolls').set(votedPolls);
-                    }
-                });
-            }
-
-            function getVotedPollsFromFirebase(callback) {
-                db.ref('votedPolls').once('value', (snapshot) => {
-                    const data = snapshot.val();
-                    callback(data ? (Array.isArray(data) ? data : []) : []);
-                });
+            function getUserIp(callback) {
+                fetch('https://api.ipify.org?format=json')
+                    .then(response => response.json())
+                    .then(data => callback(data.ip))
+                    .catch(() => callback('unknown_' + Date.now()));
             }
 
             function renderPoll() {
-                if (!currentPoll || !activePollEl) return;
-                document.querySelector('.poll-title').textContent = currentPoll.title || '';
-                document.querySelector('.poll-author').textContent = currentPoll.author || '';
-                document.querySelector('.poll-date').textContent = currentPoll.date || '';
+                if (!currentPoll) return;
+                document.querySelector('.poll-title').textContent = currentPoll.title;
+                document.querySelector('.poll-author').textContent = currentPoll.author;
+                document.querySelector('.poll-date').textContent = currentPoll.date;
 
-                if (pollOptionsEl) pollOptionsEl.innerHTML = '';
-                (currentPoll.options || []).forEach(option => {
+                pollOptionsEl.innerHTML = '';
+                currentPoll.options.forEach(option => {
                     const optionEl = document.createElement('div');
                     optionEl.className = 'poll-option';
                     optionEl.dataset.option = option.id;
@@ -781,39 +831,37 @@
                         <div class="poll-result"></div>
                         <div class="poll-percentage">0%</div>
                     `;
-                    if (pollOptionsEl) pollOptionsEl.appendChild(optionEl);
+                    pollOptionsEl.appendChild(optionEl);
                 });
 
                 selectedOption = null;
-                if (voteBtn) voteBtn.disabled = true;
-                if (errorMessage) errorMessage.style.display = 'none';
-                if (resultsInfo) resultsInfo.style.display = 'block';
-                if (totalVotesEl) totalVotesEl.style.display = 'none';
-                if (votesCountEl) votesCountEl.textContent = currentPoll.totalVotes || 0;
+                voteBtn.disabled = true;
+                errorMessage.style.display = 'none';
+                totalVotesEl.style.display = shouldShowResults() ? 'block' : 'none';
+                votesCountEl.textContent = currentPoll.totalVotes;
+                resultsInfo.style.display = shouldShowResults() ? 'none' : 'block';
 
                 document.querySelectorAll('.poll-option').forEach(option => {
                     option.addEventListener('click', selectOption);
                 });
 
-                if (activePollEl) activePollEl.style.display = 'block';
-                checkIfUserVoted();
+                activePollEl.style.display = 'block';
             }
 
             function checkIfUserVoted() {
-                if (!currentPoll) return;
-                getVotedPollsFromFirebase((votedPolls) => {
-                    hasVoted = votedPolls.includes(currentPoll.id);
-                    if (hasVoted || currentPoll.isExpired) {
-                        showResults();
-                        if (voteBtn) voteBtn.disabled = true;
-                    } else {
-                        hideResults();
-                    }
-                });
+                if (!currentPoll || !userIp) return;
+                const sanitizedIp = sanitizeKey(userIp);
+                hasVoted = currentPoll.voters && currentPoll.voters[sanitizedIp];
+                if (hasVoted || currentPoll.isExpired) {
+                    voteBtn.disabled = true;
+                    document.querySelectorAll('.poll-option').forEach(option => {
+                        option.classList.add('disabled');
+                    });
+                }
             }
 
             function selectOption() {
-                if (hasVoted || (currentPoll && currentPoll.isExpired)) return;
+                if (hasVoted || currentPoll.isExpired) return;
 
                 document.querySelectorAll('.poll-option').forEach(option => {
                     option.classList.remove('selected');
@@ -821,15 +869,35 @@
 
                 this.classList.add('selected');
                 selectedOption = parseInt(this.dataset.option);
-                if (voteBtn) voteBtn.disabled = false;
+                voteBtn.disabled = false;
+            }
+
+            function shouldShowResults() {
+                if (!currentPoll) return false;
+                switch (currentPoll.resultsVisibility) {
+                    case 'always':
+                        return true;
+                    case 'after-poll-ends':
+                        return currentPoll.isExpired;
+                    case 'admin-only':
+                        return isAdmin;
+                    case 'after-voting':
+                        return hasVoted || currentPoll.isExpired;
+                    default:
+                        return false;
+                }
             }
 
             function submitVote() {
                 if (!selectedOption || !currentPoll) {
-                    if (errorMessage) {
-                        errorMessage.textContent = 'Tafadhali chagua chaguo moja';
-                        errorMessage.style.display = 'block';
-                    }
+                    errorMessage.textContent = 'Tafadhali chagua chaguo moja';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+
+                if (hasVoted) {
+                    errorMessage.textContent = 'Umeshapiga kura tayari!';
+                    errorMessage.style.display = 'block';
                     return;
                 }
 
@@ -837,6 +905,12 @@
                 if (option) {
                     option.votes++;
                     currentPoll.totalVotes++;
+                    if (!currentPoll.voters) currentPoll.voters = {};
+                    const sanitizedIp = sanitizeKey(userIp);
+                    currentPoll.voters[sanitizedIp] = {
+                        optionId: selectedOption,
+                        timestamp: new Date().toISOString()
+                    };
 
                     const pollIndex = allPolls.findIndex(p => p && p.id === currentPoll.id);
                     if (pollIndex !== -1) {
@@ -844,80 +918,68 @@
                         savePollsToFirebase();
                     }
 
-                    saveVoteToFirebase(currentPoll.id);
                     hasVoted = true;
-                    showResults();
+                    voteBtn.disabled = true;
+                    document.querySelectorAll('.poll-option').forEach(option => {
+                        option.classList.add('disabled');
+                    });
+                    if (shouldShowResults()) showResults();
                 }
             }
 
             function showResults() {
                 if (!currentPoll) return;
-                document.querySelectorAll('.poll-option').forEach(option => {
-                    option.classList.add('disabled');
-                    option.removeEventListener('click', selectOption);
+                const totalVotes = currentPoll.totalVotes || 0;
+                let maxVotes = -1;
+                let minVotes = Infinity;
+                currentPoll.options.forEach(option => {
+                    maxVotes = Math.max(maxVotes, option.votes);
+                    minVotes = Math.min(minVotes, option.votes);
                 });
 
-                if (voteBtn) voteBtn.disabled = true;
-
-                const totalVotes = currentPoll.totalVotes || 0;
                 document.querySelectorAll('.poll-option').forEach(optionEl => {
                     const optionId = parseInt(optionEl.dataset.option);
-                    const option = (currentPoll.options || []).find(o => o.id === optionId);
-                    
+                    const option = currentPoll.options.find(o => o.id === optionId);
                     if (option) {
                         const percentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
                         const roundedPercentage = Math.round(percentage);
-                        
+
                         const resultEl = optionEl.querySelector('.poll-result');
                         const percentageEl = optionEl.querySelector('.poll-percentage');
-                        
-                        if (resultEl) {
-                            resultEl.style.display = 'block';
-                            setTimeout(() => {
-                                resultEl.style.width = `${percentage}%`;
-                            }, 50);
-                        }
-                        if (percentageEl) percentageEl.style.display = 'block';
-                        if (percentageEl) percentageEl.textContent = `${roundedPercentage}%`;
 
-                        if (optionId === selectedOption) {
-                            optionEl.classList.add('selected');
+                        resultEl.style.display = 'block';
+                        setTimeout(() => {
+                            resultEl.style.width = `${percentage}%`;
+                        }, 50);
+                        percentageEl.style.display = 'block';
+                        percentageEl.textContent = `${roundedPercentage}% (${option.votes} kura)`;
+
+                        optionEl.classList.remove('most-voted', 'least-voted');
+                        if (totalVotes > 0) {
+                            if (option.votes === maxVotes && maxVotes > 0) {
+                                optionEl.classList.add('most-voted');
+                            }
+                            if (option.votes === minVotes) {
+                                optionEl.classList.add('least-voted');
+                            }
                         }
                     }
                 });
 
-                if (totalVotesEl) totalVotesEl.style.display = 'block';
-                if (votesCountEl) votesCountEl.textContent = totalVotes;
-                if (resultsInfo) resultsInfo.style.display = 'none';
-                if (errorMessage) errorMessage.style.display = 'none';
-            }
-
-            function hideResults() {
-                document.querySelectorAll('.poll-option').forEach(option => {
-                    option.classList.remove('disabled');
-                    const resultEl = option.querySelector('.poll-result');
-                    const percentageEl = option.querySelector('.poll-percentage');
-                    if (resultEl) {
-                        resultEl.style.display = 'none';
-                        resultEl.style.width = '0';
-                    }
-                    if (percentageEl) percentageEl.style.display = 'none';
-                });
-
-                if (resultsInfo) resultsInfo.style.display = 'block';
-                if (totalVotesEl) totalVotesEl.style.display = 'none';
+                totalVotesEl.style.display = 'block';
+                votesCountEl.textContent = totalVotes;
+                resultsInfo.style.display = 'none';
+                errorMessage.style.display = 'none';
             }
 
             function toggleTheme(theme) {
                 const container = document.querySelector('.container');
-                if (container) {
-                    if (theme === 'whatsapp') {
-                        container.classList.add('whatsapp-theme');
-                    } else {
-                        container.classList.remove('whatsapp-theme');
-                    }
+                if (theme === 'whatsapp') {
+                    container.classList.add('whatsapp-theme');
+                } else {
+                    container.classList.remove('whatsapp-theme');
                 }
-                if (createPollBtn) createPollBtn.style.display = 'block';
+                createPollBtn.style.display = 'block';
             }
 
             function formatTimeRemaining(ms) {
@@ -936,19 +998,24 @@
                 if (minutes > 0) return `${minutes} dakika${minutes > 1 ? 's' : ''}`;
                 return `${seconds} sekunde${seconds > 1 ? 's' : ''}`;
             }
-            
+
             function updateTimeRemaining() {
                 setInterval(() => {
-                    if (!currentPoll || !currentPoll.endTime || !timeRemainingEl) return;
+                    if (!currentPoll || !currentPoll.endTime) return;
                     const now = new Date().getTime();
                     const timeLeft = currentPoll.endTime - now;
                     if (timeLeft > 0) {
                         timeRemainingEl.textContent = `Muda uliobaki: ${formatTimeRemaining(timeLeft)}`;
                         timeRemainingEl.classList.remove('time-expired');
                     } else {
-                  timeRemainingEl.textContent = ' Muda wa kupiga kura umekwisha';
+                        timeRemainingEl.textContent = 'Muda wa kupiga kura umekwisha';
                         timeRemainingEl.classList.add('time-expired');
                         currentPoll.isExpired = true;
+                        voteBtn.disabled = true;
+                        document.querySelectorAll('.poll-option').forEach(option => {
+                            option.classList.add('disabled');
+                        });
+                        if (shouldShowResults()) showResults();
                     }
                 }, 1000);
             }
@@ -957,7 +1024,6 @@
                 setInterval(() => {
                     const now = new Date().getTime();
                     allPolls.forEach(poll => {
-                        if (!poll) return;
                         if (poll.endTime && now > poll.endTime && !poll.isExpired) {
                             poll.isExpired = true;
                             pollHistory.push(poll);
@@ -965,29 +1031,39 @@
                             savePollsToFirebase();
                             saveHistoryToFirebase();
                             if (currentPoll && currentPoll.id === poll.id) {
-                                showResults();
-                                if (voteBtn) voteBtn.disabled = true;
+                                if (shouldShowResults()) showResults();
+                                voteBtn.disabled = true;
                             }
                         }
                     });
-                    if (isAdmin && adminHistoryList) updateAdminPanel();
+                    if (isAdmin) updateAdminPanel();
                 }, 1000);
             }
 
             function updateAdminPanel() {
-                if (!isAdmin || !adminPollsList || !adminHistoryList) return;
+                if (!isAdmin) return;
 
                 adminPollsList.innerHTML = '';
                 allPolls.forEach(poll => {
-                    if (!poll) return;
                     const timeLeft = poll.endTime ? Math.max(0, poll.endTime - new Date().getTime()) : 0;
                     const card = document.createElement('div');
                     card.className = 'admin-poll-card';
+                    let optionsHtml = '<div><strong>Chaguo:</strong></div><div class="options-list">';
+                    poll.options.forEach(option => {
+                        optionsHtml += `<div>${option.text}: ${option.votes} kura</div>`;
+                    });
+                    optionsHtml += '</div>';
                     card.innerHTML = `
                         <div><strong>Swali:</strong> ${poll.title}</div>
                         <div><strong>Kura:</strong> ${poll.totalVotes}</div>
+                        ${optionsHtml}
                         <div><strong>Muda:</strong> ${poll.isExpired ? 'Imemalizika' : formatTimeRemaining(timeLeft)}</div>
-                        <div><strong>Historia:</strong> ${poll.isExpired ? 'Hifadhi' : 'Inaendelea'}</div>
+                        <div><strong>Matokeo:</strong> ${
+                            poll.resultsVisibility === 'always' ? 'Muda Wote' :
+                            poll.resultsVisibility === 'after-poll-ends' ? 'Hadi Kura Imalize' :
+                            poll.resultsVisibility === 'admin-only' ? 'Admin Pekee' :
+                            'Baada ya Kupiga Kura'
+                        }</div>
                         <button class="edit-btn" data-id="${poll.id}"><span class="icon">✏️</span>Hariri</button>
                         <button class="delete-btn" data-id="${poll.id}"><span class="icon">🗑️</span>Futa</button>
                     `;
@@ -996,7 +1072,6 @@
 
                 adminHistoryList.innerHTML = '';
                 pollHistory.forEach(poll => {
-                    if (!poll) return;
                     const card = document.createElement('div');
                     card.className = 'admin-poll-card';
                     let optionsHtml = '<div><strong>Chaguo:</strong></div><div class="options-list">';
@@ -1017,14 +1092,14 @@
                 document.querySelectorAll('.delete-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         const pollId = btn.dataset.id;
-                        allPolls = allPolls.filter(p => p && p.id !== pollId);
-                        pollHistory = pollHistory.filter(p => p && p.id !== pollId);
+                        allPolls = allPolls.filter(p => p.id !== pollId);
+                        pollHistory = pollHistory.filter(p => p.id !== pollId);
                         savePollsToFirebase();
                         saveHistoryToFirebase();
                         updateAdminPanel();
                         if (currentPoll && currentPoll.id === pollId) {
-                            currentPoll = null;
-                            if (activePollEl) activePollEl.style.display = 'none';
+                            currentPoll = allPolls[0] || null;
+                            renderPoll();
                         }
                     });
                 });
@@ -1033,30 +1108,29 @@
                     btn.addEventListener('click', () => {
                         const pollId = btn.dataset.id;
                         const poll = allPolls.find(p => p.id === pollId);
-                        if (poll && editPollForm) {
+                        if (poll) {
                             editPollForm.style.display = 'block';
-                            if (createPollForm) createPollForm.style.display = 'none';
+                            createPollForm.style.display = 'none';
                             document.getElementById('edit-poll-title').value = poll.title;
                             document.getElementById('edit-poll-duration').value = poll.duration;
                             document.getElementById('edit-duration-unit').value = poll.durationUnit;
+                            document.getElementById('edit-results-visibility').value = poll.resultsVisibility;
                             const editOptionsContainer = document.getElementById('edit-options-container');
-                            if (editOptionsContainer) {
-                                editOptionsContainer.innerHTML = '';
-                                poll.options.forEach(option => {
-                                    const optionDiv = document.createElement('div');
-                                    optionDiv.className = 'option-input-container';
-                                    optionDiv.innerHTML = `
-                                        <input type="text" class="option-input" value="${option.text}">
-                                        <button class="remove-option-btn">✕</button>
-                                    `;
-                                    editOptionsContainer.appendChild(optionDiv);
-                                    optionDiv.querySelector('.remove-option-btn').addEventListener('click', function() {
-                                        if (editOptionsContainer.children.length > 2) {
-                                            editOptionsContainer.removeChild(optionDiv);
-                                        }
-                                    });
+                            editOptionsContainer.innerHTML = '';
+                            poll.options.forEach(option => {
+                                const optionDiv = document.createElement('div');
+                                optionDiv.className = 'option-input-container';
+                                optionDiv.innerHTML = `
+                                    <input type="text" class="option-input" value="${option.text}">
+                                    <button class="remove-option-btn">✕</button>
+                                `;
+                                editOptionsContainer.appendChild(optionDiv);
+                                optionDiv.querySelector('.remove-option-btn').addEventListener('click', function() {
+                                    if (editOptionsContainer.children.length > 2) {
+                                        editOptionsContainer.removeChild(optionDiv);
+                                    }
                                 });
-                            }
+                            });
                             document.querySelector('.update-poll-btn').dataset.id = pollId;
                         }
                     });
@@ -1064,18 +1138,24 @@
             }
 
             function showPasswordModal() {
-                if (passwordModal) {
-                    passwordModal.style.display = 'flex';
-                    if (passwordInput) passwordInput.focus();
-                }
+                passwordModal.style.display = 'flex';
+                passwordInput.focus();
             }
 
             function hidePasswordModal() {
-                if (passwordModal) passwordModal.style.display = 'none';
+                passwordModal.style.display = 'none';
+            }
+
+            function showErrorModal() {
+                errorModal.style.display = 'flex';
+            }
+
+            function hideErrorModal() {
+                errorModal.style.display = 'none';
             }
 
             function setupEventListeners() {
-                if (voteBtn) voteBtn.addEventListener('click', submitVote);
+                voteBtn.addEventListener('click', submitVote);
 
                 themeToggleBtns.forEach(btn => {
                     btn.addEventListener('click', function() {
@@ -1085,52 +1165,51 @@
                     });
                 });
 
-                if (createPollBtn) {
-                    createPollBtn.addEventListener('click', () => {
-                        showPasswordModal();
-                    });
-                }
+                createPollBtn.addEventListener('click', () => {
+                    showPasswordModal();
+                });
 
-                if (passwordSubmit) {
-                    passwordSubmit.addEventListener('click', () => {
-                        const password = passwordInput ? passwordInput.value : '';
-                        if (password === CREATE_POLL_PASSWORD) {
-                            isAdmin = true;
-                            if (adminSection) adminSection.style.display = 'block';
-                            if (activePollEl) activePollEl.style.display = 'none';
-                            if (createPollForm) createPollForm.style.display = 'block';
-                            if (editPollForm) editPollForm.style.display = 'none';
-                            hidePasswordModal();
-                            updateAdminPanel();
-                        } else {
-                            alert('Nenosiri sio sahihi! Tafadhali wasiliana na David Malosha Amos kwa namba 0785197452 au 0623715858 WhatsApp no yake ili upate nenosiri sahihi ili uweze kutengeneza na wewe maswali yako.');
-                            if (passwordInput) passwordInput.value = '';
-                        }
-                    });
-                }
+                passwordSubmit.addEventListener('click', () => {
+                    const password = passwordInput.value;
+                    if (password === CREATE_POLL_PASSWORD) {
+                        isAdmin = true;
+                        adminSection.style.display = 'block';
+                        activePollEl.style.display = 'none';
+                        createPollForm.style.display = 'block';
+                        editPollForm.style.display = 'none';
+                        hidePasswordModal();
+                        updateAdminPanel();
+                    } else {
+                        passwordInput.value = '';
+                        hidePasswordModal();
+                        showErrorModal();
+                    }
+                });
 
-                if (passwordInput) {
-                    passwordInput.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter' && passwordSubmit) passwordSubmit.click();
-                    });
-                }
+                passwordBackBtn.addEventListener('click', () => {
+                    hidePasswordModal();
+                    activePollEl.style.display = 'block';
+                });
 
-                if (backBtn) {
-                    backBtn.addEventListener('click', () => {
-                        isAdmin = false;
-                        if (adminSection) adminSection.style.display = 'none';
-                        if (createPollForm) createPollForm.style.display = 'none';
-                        if (editPollForm) editPollForm.style.display = 'none';
-                        if (activePollEl) activePollEl.style.display = 'block';
-                    });
-                }
+                errorCloseBtn.addEventListener('click', () => {
+                    hideErrorModal();
+                    activePollEl.style.display = 'block';
+                });
+
+                backBtn.addEventListener('click', () => {
+                    isAdmin = false;
+                    adminSection.style.display = 'none';
+                    createPollForm.style.display = "none";
+                    editPollForm.style.display = 'none';
+                    activePollEl.style.display = 'block';
+                    renderPoll();
+                });
 
                 document.querySelectorAll('.add-option-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const optionsContainer = e.target.closest('.create-poll-form') ? 
                             document.getElementById('options-container') : 
                             document.getElementById('edit-options-container');
-                        if (!optionsContainer) return;
                         const optionCount = optionsContainer.children.length + 1;
                         const optionDiv = document.createElement('div');
                         optionDiv.className = 'option-input-container';
@@ -1150,154 +1229,150 @@
                 document.querySelectorAll('.remove-option-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const optionsContainer = document.getElementById('options-container');
-                        if (optionsContainer && optionsContainer.children.length > 2) {
+                        if (optionsContainer.children.length > 2) {
                             optionsContainer.removeChild(this.parentElement);
                         }
                     });
                 });
 
                 const submitPollBtn = document.querySelector('.submit-poll-btn');
-                if (submitPollBtn) {
-                    submitPollBtn.addEventListener('click', () => {
-                        const titleInput = document.getElementById('poll-title');
-                        const optionInputs = document.querySelectorAll('#options-container .option-input');
-                        const durationInput = document.getElementById('poll-duration');
-                        const durationUnit = document.getElementById('duration-unit');
+                submitPollBtn.addEventListener('click', () => {
+                    const titleInput = document.getElementById('poll-title');
+                    const optionInputs = document.querySelectorAll('#options-container .option-input');
+                    const durationInput = document.getElementById('poll-duration');
+                    const durationUnit = document.getElementById('duration-unit');
+                    const resultsVisibility = document.getElementById('results-visibility');
 
-                        if (!titleInput || !titleInput.value.trim()) {
-                            alert('Tafadhali jaza swali la kura!');
-                            return;
-                        }
+                    if (!titleInput.value.trim()) {
+                        alert('Tafadhali jaza swali la kura!');
+                        return;
+                    }
 
-                        let validOptions = [];
-                        optionInputs.forEach(input => {
-                            if (input.value.trim()) validOptions.push(input.value.trim());
-                        });
+                    let validOptions = [];
+                    optionInputs.forEach(input => {
+                        if (input.value.trim()) validOptions.push(input.value.trim());
+                    });
 
-                        if (validOptions.length < 2) {
-                            alert('Tafadhali jaza angalau chaguo 2!');
-                            return;
-                        }
+                    if (validOptions.length < 2) {
+                        alert('Tafadhali jaza angalau chaguo 2!');
+                        return;
+                    }
 
-                        const duration = durationInput && durationInput.value ? parseInt(durationInput.value) : 5;
-                        const durationUnitValue = durationUnit ? durationUnit.value : 'minutes';
-                        const durationMultipliers = {
-                            seconds: 1000,
-                            minutes: 60000,
-                            hours: 3600000,
-                            weeks: 604800000,
-                            months: 2592000000,
-                            years: 31536000000
-                        };
-                        const endTime = new Date().getTime() + duration * durationMultipliers[durationUnitValue];
+                    const duration = parseInt(durationInput.value) || 5;
+                    const durationUnitValue = durationUnit.value;
+                    const durationMultipliers = {
+                        seconds: 1000,
+                        minutes: 60000,
+                        hours: 3600000,
+                        weeks: 604800000,
+                        months: 2592000000,
+                        years: 31536000000
+                    };
+                    const endTime = new Date().getTime() + duration * durationMultipliers[durationUnitValue];
 
-                        const newPoll = {
-                            id: 'poll-' + Date.now(),
+                    const newPoll = {
+                        id: 'poll-' + Date.now(),
+                        title: titleInput.value.trim(),
+                        author: 'maloshadavid@92gmail.com',
+                        date: new Date().toLocaleDateString('sw'),
+                        options: validOptions.map((text, index) => ({
+                            id: index + 1,
+                            text: text,
+                            votes: 0
+                        })),
+                        totalVotes: 0,
+                        duration: duration,
+                        durationUnit: durationUnitValue,
+                        endTime: endTime,
+                        isExpired: false,
+                        resultsVisibility: resultsVisibility.value,
+                        voters: {}
+                    };
+
+                    allPolls = [newPoll];
+                    currentPoll = newPoll;
+                    savePollsToFirebase();
+                    renderPoll();
+                    updateAdminPanel();
+                    if (shouldShowResults()) showResults();
+
+                    titleInput.value = '';
+                    durationInput.value = '';
+                    document.getElementById('options-container').innerHTML = `
+                        <div class="option-input-container">
+                            <input type="text" class="option-input" placeholder="Chaguo 1">
+                            <button class="remove-option-btn">✕</button>
+                        </div>
+                        <div class="option-input-container">
+                            <input type="text" class="option-input" placeholder="Chaguo 2">
+                            <button class="remove-option-btn">✕</button>
+                        </div>
+                    `;
+                    activePollEl.style.display = 'block';
+                    createPollForm.style.display = 'none';
+                });
+
+                const updatePollBtn = document.querySelector('.update-poll-btn');
+                updatePollBtn.addEventListener('click', () => {
+                    const pollId = updatePollBtn.dataset.id;
+                    const titleInput = document.getElementById('edit-poll-title');
+                    const durationInput = document.getElementById('edit-poll-duration');
+                    const durationUnit = document.getElementById('edit-duration-unit');
+                    const resultsVisibility = document.getElementById('edit-results-visibility');
+                    const optionInputs = document.querySelectorAll('#edit-options-container .option-input');
+
+                    if (!titleInput.value.trim()) {
+                        alert('Tafadhali jaza swali la kura!');
+                        return;
+                    }
+
+                    let validOptions = [];
+                    optionInputs.forEach(input => {
+                        if (input.value.trim()) validOptions.push(input.value.trim());
+                    });
+
+                    if (validOptions.length < 2) {
+                        alert('Tafadhali jaza angalau chaguo 2!');
+                        return;
+                    }
+
+                    const duration = parseInt(durationInput.value) || 5;
+                    const durationUnitValue = durationUnit.value;
+                    const durationMultipliers = {
+                        seconds: 1000,
+                        minutes: 60000,
+                        hours: 3600000,
+                        weeks: 604800000,
+                        months: 2592000000,
+                        years: 31536000000
+                    };
+                    const endTime = new Date().getTime() + duration * durationMultipliers[durationUnitValue];
+
+                    const pollIndex = allPolls.findIndex(p => p.id === pollId);
+                    if (pollIndex !== -1) {
+                        allPolls[pollIndex] = {
+                            ...allPolls[pollIndex],
                             title: titleInput.value.trim(),
-                            author: 'maloshadavid@92gmail.com',
-                            date: new Date().toLocaleDateString('sw'),
-                            options: validOptions.map((text, index) => ({
-                                id: index + 1,
-                                text: text,
-                                votes: 0
-                            })),
-                            totalVotes: 0,
                             duration: duration,
                             durationUnit: durationUnitValue,
                             endTime: endTime,
-                            isExpired: false
-                        };
-
-                        allPolls = [newPoll];
-                        currentPoll = newPoll;
-                        savePollsToFirebase();
-                        renderPoll();
-                        updateAdminPanel();
-
-                        if (titleInput) titleInput.value = '';
-                        if (durationInput) durationInput.value = '';
-                        const optionsContainer = document.getElementById('options-container');
-                        if (optionsContainer) {
-                            optionsContainer.innerHTML = `
-                                <div class="option-input-container">
-                                    <input type="text" class="option-input" placeholder="Chaguo 1">
-                                    <button class="remove-option-btn">✕</button>
-                                </div>
-                                <div class="option-input-container">
-                                    <input type="text" class="option-input" placeholder="Chaguo 2">
-                                    <button class="remove-option-btn">✕</button>
-                                </div>
-                            `;
-                            optionsContainer.querySelectorAll('.remove-option-btn').forEach(btn => {
-                                btn.addEventListener('click', function() {
-                                    if (optionsContainer.children.length > 2) {
-                                        optionsContainer.removeChild(this.parentElement);
-                                    }
-                                });
-                            });
-                        }
-
-                        if (activePollEl) activePollEl.style.display = 'block';
-                        if (createPollForm) createPollForm.style.display = 'none';
-                    });
-                }
-
-                const updatePollBtn = document.querySelector('.update-poll-btn');
-                if (updatePollBtn) {
-                    updatePollBtn.addEventListener('click', () => {
-                        const pollId = updatePollBtn.dataset.id;
-                        const titleInput = document.getElementById('edit-poll-title');
-                        const durationInput = document.getElementById('edit-poll-duration');
-                        const durationUnit = document.getElementById('edit-duration-unit');
-                        const optionInputs = document.querySelectorAll('#edit-options-container .option-input');
-
-                        if (!titleInput || !titleInput.value.trim()) {
-                            alert('Tafadhali jaza swali la kura!');
-                            return;
-                        }
-
-                        let validOptions = [];
-                        optionInputs.forEach(input => {
-                            if (input.value.trim()) validOptions.push(input.value.trim());
-                        });
-
-                        if (validOptions.length < 2) {
-                            alert('Tafadhali jaza angalau chaguo 2!');
-                            return;
-                        }
-
-                        const duration = durationInput && durationInput.value ? parseInt(durationInput.value) : 5;
-                        const durationUnitValue = durationUnit ? durationUnit.value : 'minutes';
-                        const durationMultipliers = {
-                            seconds: 1000,
-                            minutes: 60000,
-                            hours: 3600000,
-                            weeks: 604800000,
-                            months: 2592000000,
-                            years: 31536000000
-                        };
-                        const endTime = new Date().getTime() + duration * durationMultipliers[durationUnitValue];
-
-                        const pollIndex = allPolls.findIndex(p => p.id === pollId);
-                        if (pollIndex !== -1) {
-                            allPolls[pollIndex].title = titleInput.value.trim();
-                            allPolls[pollIndex].duration = duration;
-                            allPolls[pollIndex].durationUnit = durationUnitValue;
-                            allPolls[pollIndex].endTime = endTime;
-                            allPolls[pollIndex].options = validOptions.map((text, index) => ({
+                            options: validOptions.map((text, index) => ({
                                 id: index + 1,
                                 text: text,
                                 votes: allPolls[pollIndex].options[index] ? allPolls[pollIndex].options[index].votes : 0
-                            }));
-                            currentPoll = allPolls[pollIndex];
-                            savePollsToFirebase();
-                            renderPoll();
-                            updateAdminPanel();
-                            if (editPollForm) editPollForm.style.display = 'none';
-                            if (activePollEl) activePollEl.style.display = 'block';
-                        }
-                    });
-                }
+                            })),
+                            resultsVisibility: resultsVisibility.value,
+                            voters: allPolls[pollIndex].voters || {}
+                        };
+                        currentPoll = allPolls[pollIndex];
+                        savePollsToFirebase();
+                        renderPoll();
+                        updateAdminPanel();
+                        if (shouldShowResults()) showResults();
+                        editPollForm.style.display = 'none';
+                        activePollEl.style.display = 'block';
+                    }
+                });
 
                 lightModeBtn.addEventListener('click', () => {
                     document.body.classList.remove('dark-mode');
@@ -1314,5 +1389,5 @@
 </body>
 </html>
 
-      
-                        
+
+ 
