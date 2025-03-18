@@ -484,6 +484,52 @@
             transform: scale(1.05);
             box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
         }
+
+        .time-expired {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+
+        body.dark-mode {
+            --background-color: #1A1A1A;
+            --text-color: #FFFFFF;
+            --border-color: #444;
+            --hover-color: #333;
+        }
+
+        body.dark-mode .container {
+            background-color: #2D2D2D;
+        }
+
+        body.dark-mode .admin-section {
+            background-color: #2D2D2D;
+        }
+
+        body.dark-mode .password-modal-content {
+            background: linear-gradient(135deg, #2D2D2D, #444);
+        }
+
+        .mode-toggle {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .mode-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -516,16 +562,14 @@
             </div>
             <div class="form-group">
                 <label class="form-label" for="poll-duration"><span class="icon">⏳</span>Muda wa Kura:</label>
-                <input type="number" id="poll-duration" class="form-input" min="1" placeholder="Weka muda wa mwisho wa upigaji kura.
-
-">
+                <input type="number" id="poll-duration" class="form-input" min="1" placeholder="Weka muda wa mwisho wa upigaji kura">
                 <select id="duration-unit" class="form-select">          
+                    <option value="seconds">Sekunde</option>
                     <option value="minutes">Dakika</option>
                     <option value="hours">Saa</option>
                     <option value="weeks">Wiki</option>
                     <option value="months">Mwezi</option>
                     <option value="years">Mwaka</option>
-                    
                 </select>
             </div>
             <button class="submit-poll-btn"><span class="icon">🚀</span>Tengeneza Kura</button>
@@ -535,6 +579,18 @@
             <div class="form-group">
                 <label class="form-label" for="edit-poll-title"><span class="icon">❓</span>Swali la Kura:</label>
                 <input type="text" id="edit-poll-title" class="form-input" placeholder="Andika swali lako hapa...">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="edit-poll-duration"><span class="icon">⏳</span>Muda wa Kura:</label>
+                <input type="number" id="edit-poll-duration" class="form-input" min="1" placeholder="Weka muda wa mwisho">
+                <select id="edit-duration-unit" class="form-select">
+                    <option value="seconds">Sekunde</option>
+                    <option value="minutes">Dakika</option>
+                    <option value="hours">Saa</option>
+                    <option value="weeks">Wiki</option>
+                    <option value="months">Mwezi</option>
+                    <option value="years">Mwaka</option>
+                </select>
             </div>
             <div class="form-group">
                 <label class="form-label"><span class="icon">✅</span>Chaguo:</label>
@@ -570,11 +626,16 @@
             <h3><span class="icon">📜</span>Historia ya Kura</h3>
             <div id="admin-history-list"></div>
         </div>
+
+        <div class="mode-toggle">
+            <button class="mode-btn" id="light-mode">Light Mode</button>
+            <button class="mode-btn" id="dark-mode">Dark Mode</button>
+        </div>
     </div>
 
     <div class="password-modal" id="password-modal">
         <div class="password-modal-content">
-            <h2><span class="icon">🔒</span> TRY ANY PASSWORD  </h2>
+            <h2><span class="icon">🔒</span>TRY ANY PASSWORD</h2>
             <input type="password" id="password-input" placeholder="Nenosiri">
             <button id="password-submit"><span class="icon">✅</span>Thibitisha</button>
         </div>
@@ -634,6 +695,8 @@
             const passwordInput = document.getElementById('password-input');
             const passwordSubmit = document.getElementById('password-submit');
             const backBtn = document.getElementById('back-btn');
+            const lightModeBtn = document.getElementById('light-mode');
+            const darkModeBtn = document.getElementById('dark-mode');
 
             let selectedOption = null;
             let currentPoll = null;
@@ -865,14 +928,13 @@
                 const weeks = Math.floor(days / 7);
                 const months = Math.floor(days / 30);
                 const years = Math.floor(days / 365);
-if (years > 0) return `${years} mwaka${years > 1 ? 's' : ''}`;
+                if (years > 0) return `${years} mwaka${years > 1 ? 's' : ''}`;
                 if (months > 0) return `${months} mwezi${months > 1 ? 's' : ''}`;
                 if (weeks > 0) return `${weeks} wiki${weeks > 1 ? 's' : ''}`;
                 if (days > 0) return `${days} siku${days > 1 ? 's' : ''}`;
                 if (hours > 0) return `${hours} saa${hours > 1 ? 's' : ''}`;
                 if (minutes > 0) return `${minutes} dakika${minutes > 1 ? 's' : ''}`;
                 return `${seconds} sekunde${seconds > 1 ? 's' : ''}`;
-                
             }
             
             function updateTimeRemaining() {
@@ -882,8 +944,11 @@ if (years > 0) return `${years} mwaka${years > 1 ? 's' : ''}`;
                     const timeLeft = currentPoll.endTime - now;
                     if (timeLeft > 0) {
                         timeRemainingEl.textContent = `Muda uliobaki: ${formatTimeRemaining(timeLeft)}`;
+                        timeRemainingEl.classList.remove('time-expired');
                     } else {
-                        timeRemainingEl.textContent = 'Kura imemalizika';
+                  timeRemainingEl.textContent = ' Muda wa kupiga kura umekwisha';
+                        timeRemainingEl.classList.add('time-expired');
+                        currentPoll.isExpired = true;
                     }
                 }, 1000);
             }
@@ -972,6 +1037,8 @@ if (years > 0) return `${years} mwaka${years > 1 ? 's' : ''}`;
                             editPollForm.style.display = 'block';
                             if (createPollForm) createPollForm.style.display = 'none';
                             document.getElementById('edit-poll-title').value = poll.title;
+                            document.getElementById('edit-poll-duration').value = poll.duration;
+                            document.getElementById('edit-duration-unit').value = poll.durationUnit;
                             const editOptionsContainer = document.getElementById('edit-options-container');
                             if (editOptionsContainer) {
                                 editOptionsContainer.innerHTML = '';
@@ -1115,6 +1182,7 @@ if (years > 0) return `${years} mwaka${years > 1 ? 's' : ''}`;
                         const duration = durationInput && durationInput.value ? parseInt(durationInput.value) : 5;
                         const durationUnitValue = durationUnit ? durationUnit.value : 'minutes';
                         const durationMultipliers = {
+                            seconds: 1000,
                             minutes: 60000,
                             hours: 3600000,
                             weeks: 604800000,
@@ -1179,6 +1247,8 @@ if (years > 0) return `${years} mwaka${years > 1 ? 's' : ''}`;
                     updatePollBtn.addEventListener('click', () => {
                         const pollId = updatePollBtn.dataset.id;
                         const titleInput = document.getElementById('edit-poll-title');
+                        const durationInput = document.getElementById('edit-poll-duration');
+                        const durationUnit = document.getElementById('edit-duration-unit');
                         const optionInputs = document.querySelectorAll('#edit-options-container .option-input');
 
                         if (!titleInput || !titleInput.value.trim()) {
@@ -1196,9 +1266,24 @@ if (years > 0) return `${years} mwaka${years > 1 ? 's' : ''}`;
                             return;
                         }
 
+                        const duration = durationInput && durationInput.value ? parseInt(durationInput.value) : 5;
+                        const durationUnitValue = durationUnit ? durationUnit.value : 'minutes';
+                        const durationMultipliers = {
+                            seconds: 1000,
+                            minutes: 60000,
+                            hours: 3600000,
+                            weeks: 604800000,
+                            months: 2592000000,
+                            years: 31536000000
+                        };
+                        const endTime = new Date().getTime() + duration * durationMultipliers[durationUnitValue];
+
                         const pollIndex = allPolls.findIndex(p => p.id === pollId);
                         if (pollIndex !== -1) {
                             allPolls[pollIndex].title = titleInput.value.trim();
+                            allPolls[pollIndex].duration = duration;
+                            allPolls[pollIndex].durationUnit = durationUnitValue;
+                            allPolls[pollIndex].endTime = endTime;
                             allPolls[pollIndex].options = validOptions.map((text, index) => ({
                                 id: index + 1,
                                 text: text,
@@ -1213,6 +1298,14 @@ if (years > 0) return `${years} mwaka${years > 1 ? 's' : ''}`;
                         }
                     });
                 }
+
+                lightModeBtn.addEventListener('click', () => {
+                    document.body.classList.remove('dark-mode');
+                });
+
+                darkModeBtn.addEventListener('click', () => {
+                    document.body.classList.add('dark-mode');
+                });
             }
 
             init();
@@ -1221,3 +1314,5 @@ if (years > 0) return `${years} mwaka${years > 1 ? 's' : ''}`;
 </body>
 </html>
 
+      
+                        
