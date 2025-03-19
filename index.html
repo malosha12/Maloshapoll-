@@ -6,6 +6,7 @@
     <title>Mfumo wa Kupiga Kura</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         :root {
             --primary-color: #007BFF;
@@ -19,6 +20,10 @@
             --success-color: #27AE60;
             --highlight-max: #FFD700;
             --highlight-min: #D3D3D3;
+            --whatsapp-color: #25D366;
+            --x-color: #000000;
+            --facebook-color: #3B5998;
+            --instagram-color: #E1306C;
         }
 
         body {
@@ -165,6 +170,88 @@
             cursor: not-allowed;
         }
 
+        .share-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .share-btn:hover {
+            background-color: #1A3C34;
+            transform: scale(1.05);
+        }
+
+        .share-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ffffff, #f0f4ff);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            text-align: center;
+            animation: slideUp 0.5s ease-in-out;
+            width: 90%;
+            max-width: 300px;
+        }
+
+        .share-popup p {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .share-popup button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .share-popup button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .share-popup .whatsapp-btn {
+            background-color: var(--whatsapp-color);
+        }
+
+        .share-popup .x-btn {
+            background-color: var(--x-color);
+        }
+
+        .share-popup .facebook-btn {
+            background-color: var(--facebook-color);
+        }
+
+        .share-popup .instagram-btn {
+            background-color: var(--instagram-color);
+        }
+
+        .share-popup .close-btn {
+            background-color: var(--danger-color);
+            margin-top: 15px;
+        }
+
         .results-info {
             font-size: 14px;
             color: var(--text-secondary);
@@ -178,7 +265,7 @@
             color: var(--text-secondary);
             margin-top: 20px;
             text-align: center;
-            display: none; /* Hidden by default, shown based on visibility */
+            display: none;
         }
 
         .error-message {
@@ -416,7 +503,7 @@
             font-size: 18px;
         }
 
-        .password-modal, .error-modal {
+        .password-modal, .error-modal, .name-form-modal, .change-password-modal {
             display: none;
             position: fixed;
             top: 0;
@@ -430,7 +517,7 @@
             animation: fadeIn 0.3s ease-in-out;
         }
 
-        .password-modal-content, .error-modal-content {
+        .password-modal-content, .error-modal-content, .name-form-content, .change-password-content {
             background: linear-gradient(135deg, #ffffff, #f0f4ff);
             padding: 40px;
             border-radius: 20px;
@@ -446,7 +533,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .password-modal-content h2, .error-modal-content h2 {
+        .password-modal-content h2, .error-modal-content h2, .name-form-content h2, .change-password-content h2 {
             margin: 0 0 25px;
             font-size: 26px;
             color: var(--primary-color);
@@ -455,7 +542,7 @@
             letter-spacing: 1px;
         }
 
-        .password-modal-content input {
+        .password-modal-content input, .name-form-content input, .change-password-content input {
             width: 100%;
             padding: 15px;
             margin-bottom: 25px;
@@ -467,7 +554,7 @@
             background-color: #fafafa;
         }
 
-        .password-modal-content input:focus {
+        .password-modal-content input:focus, .name-form-content input:focus, .change-password-content input:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
             outline: none;
@@ -479,7 +566,7 @@
             gap: 10px;
         }
 
-        .password-modal-content button, .error-modal-content button {
+        .password-modal-content button, .error-modal-content button, .name-form-content button, .change-password-content button {
             background: linear-gradient(90deg, var(--primary-color), #0056b3);
             color: white;
             border: none;
@@ -498,7 +585,7 @@
             margin: 20px 0;
         }
 
-        .password-modal-content button:hover, .error-modal-content button:hover {
+        .password-modal-content button:hover, .error-modal-content button:hover, .name-form-content button:hover, .change-password-content button:hover {
             background: linear-gradient(90deg, #0056b3, var(--primary-color));
             transform: scale(1.05);
             box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
@@ -520,8 +607,16 @@
             background-color: #2D2D2D;
         }
 
-        body.dark-mode .password-modal-content, body.dark-mode .error-modal-content {
+        body.dark-mode .password-modal-content, body.dark-mode .error-modal-content, body.dark-mode .name-form-content, body.dark-mode .change-password-content {
             background: linear-gradient(135deg, #2D2D2D, #444);
+        }
+
+        body.dark-mode .share-popup {
+            background: linear-gradient(135deg, #2D2D2D, #444);
+        }
+
+        body.dark-mode .share-popup p {
+            color: #FFFFFF;
         }
 
         .mode-toggle {
@@ -571,7 +666,7 @@
                     <div class="option-input-container">
                         <input type="text" class="option-input" placeholder="Chaguo 2">
                         <button class="remove-option-btn">✕</button>
-                    </div>
+ </div>
                 </div>
                 <button class="add-option-btn"><span class="icon">➕</span>Ongeza Chaguo</button>
             </div>
@@ -594,6 +689,34 @@
                     <option value="after-poll-ends">Hadi Kura Imalize</option>
                     <option value="admin-only">Admin Pekee</option>
                     <option value="after-voting">Baada ya Kupiga Kura</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="require-name"><span class="icon">👤</span>Jina la Mpigaji Kura:</label>
+                <select id="require-name" class="form-select">
+                    <option value="no">Haitajiki</option>
+                    <option value="yes">Inahitajika</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="vote-limit"><span class="icon">🔢</span>Mara za Kupiga Kura:</label>
+                <input type="number" id="vote-limit" class="form-input" min="1" value="1">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="vote-restriction"><span class="icon">🔐</span>Zuia Kurudia Kura:</label>
+                <select id="vote-restriction" class="form-select">
+                    <option value="multiple">Mara Nyingi</option>
+                    <option value="session">Kwa Session</option>
+                    <option value="ip">Kwa IP</option>
+                    <option value="email">Kwa Email (Inakuja Hivi Karibuni)</option>
+                    <option value="code">Kwa Code ya Kipekee</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="block-vpn"><span class="icon">🌐</span>Zuia VPN:</label>
+                <select id="block-vpn" class="form-select">
+                    <option value="no">Hapana</option>
+                    <option value="yes">Ndio</option>
                 </select>
             </div>
             <button class="submit-poll-btn"><span class="icon">🚀</span>Tengeneza Kura</button>
@@ -630,6 +753,34 @@
                     <option value="after-voting">Baada ya Kupiga Kura</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label class="form-label" for="edit-require-name"><span class="icon">👤</span>Jina la Mpigaji Kura:</label>
+                <select id="edit-require-name" class="form-select">
+                    <option value="no">Haitajiki</option>
+                    <option value="yes">Inahitajika</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="edit-vote-limit"><span class="icon">🔢</span>Mara za Kupiga Kura:</label>
+                <input type="number" id="edit-vote-limit" class="form-input" min="1" value="1">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="edit-vote-restriction"><span class="icon">🔐</span>Zuia Kurudia Kura:</label>
+                <select id="edit-vote-restriction" class="form-select">
+                    <option value="multiple">Mara Nyingi</option>
+                    <option value="session">Kwa Session</option>
+                    <option value="ip">Kwa IP</option>
+                    <option value="email">Kwa Email (Inakuja Hivi Karibuni)</option>
+                    <option value="code">Kwa Code ya Kipekee</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="edit-block-vpn"><span class="icon">🌐</span>Zuia VPN:</label>
+                <select id="edit-block-vpn" class="form-select">
+                    <option value="no">Hapana</option>
+                    <option value="yes">Ndio</option>
+                </select>
+            </div>
             <button class="update-poll-btn"><span class="icon">🔄</span>Rekebisha Kura</button>
         </div>
 
@@ -640,13 +791,14 @@
                     <div class="time-remaining"></div>
                 </div>
                 <span class="icon">🕒</span>
-    </div>
+            </div>
             <div class="poll-info">
                 <span class="poll-author"></span>
                 <span class="poll-date"></span>
             </div>
             <div class="poll-options" id="poll-options"></div>
             <button id="vote-btn" class="vote-btn" disabled><span class="icon">🗳️</span>Piga Kura</button>
+            <button id="share-poll-btn" class="share-btn"><span class="icon">📤</span>Shiriki Kura</button>
             <div id="error-message" class="error-message"></div>
             <div class="results-info">Matokeo yataonekana baada ya kupiga kura</div>
             <div class="total-votes">Jumla ya kura: <span id="votes-count">0</span></div>
@@ -655,6 +807,7 @@
         <div class="admin-section" id="admin-section">
             <h2><span class="icon">👤</span>Admin Panel</h2>
             <button class="back-btn" id="back-btn"><span class="icon">⬅️</span>Rudi Nyuma</button>
+            <button class="edit-btn" id="change-password-btn"><span class="icon">🔑</span>Badilisha Nenosiri</button>
             <div id="admin-polls-list"></div>
             <h3><span class="icon">📜</span>Historia ya Kura</h3>
             <div id="admin-history-list"></div>
@@ -668,7 +821,7 @@
 
     <div class="password-modal" id="password-modal">
         <div class="password-modal-content">
-            <h2><span class="icon">🔒</span>TRY ANY PASSWORD</h2>
+            <h2><span class="icon">🔒</span>TRY ANY PASSWORD </h2>
             <input type="password" id="password-input" placeholder="Nenosiri">
             <div class="modal-buttons">
                 <button class="back-btn" id="password-back-btn"><span class="icon">⬅️</span>Rudi Nyuma</button>
@@ -682,6 +835,30 @@
             <h2><span class="icon">⚠️</span>Hatakiwi</h2>
             <p>Nenosiri sio sahihi! Tafadhali wasiliana na David Malosha Amos kwa namba <strong>0785197452</strong> au <strong>0623715858</strong> kupitia WhatsApp ili upate nenosiri sahihi.</p>
             <button id="error-close-btn"><span class="icon">✖️</span>Funga</button>
+        </div>
+    </div>
+
+    <div class="name-form-modal" id="name-form-modal">
+        <div class="name-form-content">
+            <h2><span class="icon">👤</span>Jaza Jina Lako</h2>
+            <input type="text" id="voter-name" class="form-input" placeholder="Jina lako">
+            <div class="modal-buttons">
+                <button id="name-submit-btn"><span class="icon">✅</span>Thibitisha</button>
+                <button id="name-cancel-btn"><span class="icon">✖️</span>Ghairi</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="change-password-modal" id="change-password-modal">
+        <div class="change-password-content">
+            <h2><span class="icon">🔑</span>Badilisha Nenosiri</h2>
+            <input type="password" id="current-password" class="form-input" placeholder="Nenosiri la Sasa">
+            <input type="password" id="new-password" class="form-input" placeholder="Nenosiri Jipya">
+            <input type="password" id="confirm-password" class="form-input" placeholder="Thibitisha Nenosiri Jipya">
+            <div class="modal-buttons">
+                <button id="change-password-submit"><span class="icon">✅</span>Badilisha</button>
+                <button id="change-password-cancel"><span class="icon">✖️</span>Ghairi</button>
+            </div>
         </div>
     </div>
 
@@ -715,12 +892,19 @@
             endTime: null,
             isExpired: false,
             resultsVisibility: 'after-voting',
-            voters: {}
+            voters: {},
+            settings: {
+                requireName: 'no',
+                voteLimit: 1,
+                voteRestriction: 'ip',
+                blockVpn: 'no'
+            }
         };
 
         document.addEventListener('DOMContentLoaded', () => {
             const pollOptionsEl = document.getElementById('poll-options');
             const voteBtn = document.getElementById('vote-btn');
+            const sharePollBtn = document.getElementById('share-poll-btn');
             const errorMessage = document.getElementById('error-message');
             const resultsInfo = document.querySelector('.results-info');
             const totalVotesEl = document.querySelector('.total-votes');
@@ -743,6 +927,17 @@
             const darkModeBtn = document.getElementById('dark-mode');
             const errorModal = document.getElementById('error-modal');
             const errorCloseBtn = document.getElementById('error-close-btn');
+            const nameFormModal = document.getElementById('name-form-modal');
+            const voterNameInput = document.getElementById('voter-name');
+            const nameSubmitBtn = document.getElementById('name-submit-btn');
+            const nameCancelBtn = document.getElementById('name-cancel-btn');
+            const changePasswordModal = document.getElementById('change-password-modal');
+            const changePasswordBtn = document.getElementById('change-password-btn');
+            const currentPasswordInput = document.getElementById('current-password');
+            const newPasswordInput = document.getElementById('new-password');
+            const confirmPasswordInput = document.getElementById('confirm-password');
+            const changePasswordSubmit = document.getElementById('change-password-submit');
+            const changePasswordCancel = document.getElementById('change-password-cancel');
 
             let selectedOption = null;
             let currentPoll = null;
@@ -750,10 +945,13 @@
             let pollHistory = [];
             let hasVoted = false;
             let isAdmin = false;
-            const CREATE_POLL_PASSWORD = "1340";
             let userIp = null;
+            let voterName = null;
+            let sessionVoted = false;
+            let adminPassword = "1340"; // Default password
 
             function init() {
+                loadAdminPassword();
                 getUserIp(ip => {
                     userIp = ip;
                     loadPollsFromFirebase();
@@ -768,13 +966,26 @@
                 return key.replace(/[.#$/[\]]/g, '_');
             }
 
+            function loadAdminPassword() {
+                db.ref('adminPassword').once('value', (snapshot) => {
+                    const savedPassword = snapshot.val();
+                    if (savedPassword) adminPassword = savedPassword;
+                });
+            }
+
+            function saveAdminPassword(newPassword) {
+                adminPassword = newPassword;
+                db.ref('adminPassword').set(newPassword);
+            }
+
             function loadPollsFromFirebase() {
                 db.ref('polls').on('value', (snapshot) => {
                     const data = snapshot.val();
                     if (data) {
                         allPolls = Object.values(data).map(poll => ({
                             ...poll,
-                            voters: poll.voters || {}
+                            voters: poll.voters || {},
+                            settings: poll.settings || { requireName: 'no', voteLimit: 1, voteRestriction: 'ip', blockVpn: 'no' }
                         }));
                         currentPoll = allPolls[0];
                         renderPoll();
@@ -815,6 +1026,13 @@
                     .catch(() => callback('unknown_' + Date.now()));
             }
 
+            function detectVPN(callback) {
+                fetch('https://ipapi.co/json/')
+                    .then(response => response.json())
+                    .then(data => callback(data.security?.proxy || data.security?.vpn || false))
+                    .catch(() => callback(false));
+            }
+
             function renderPoll() {
                 if (!currentPoll) return;
                 document.querySelector('.poll-title').textContent = currentPoll.title;
@@ -831,7 +1049,7 @@
                         <div class="poll-result"></div>
                         <div class="poll-percentage">0%</div>
                     `;
-                    pollOptionsEl.appendChild(optionEl);
+          pollOptionsEl.appendChild(optionEl);
                 });
 
                 selectedOption = null;
@@ -851,11 +1069,27 @@
             function checkIfUserVoted() {
                 if (!currentPoll || !userIp) return;
                 const sanitizedIp = sanitizeKey(userIp);
-                hasVoted = currentPoll.voters && currentPoll.voters[sanitizedIp];
+
+                if (currentPoll.settings.voteRestriction === 'session') {
+                    hasVoted = sessionVoted;
+                } else if (currentPoll.settings.voteRestriction === 'ip') {
+                    const voterData = currentPoll.voters[sanitizedIp];
+                    hasVoted = voterData ? voterData.votes >= currentPoll.settings.voteLimit : false;
+                } else if (currentPoll.settings.voteRestriction === 'multiple') {
+                    hasVoted = false; // Multiple votes allowed
+                } else if (currentPoll.settings.voteRestriction === 'code') {
+                    hasVoted = currentPoll.voters[sanitizedIp] ? currentPoll.voters[sanitizedIp].votes >= currentPoll.settings.voteLimit : false;
+                }
+
                 if (hasVoted || currentPoll.isExpired) {
                     voteBtn.disabled = true;
                     document.querySelectorAll('.poll-option').forEach(option => {
                         option.classList.add('disabled');
+                    });
+                } else {
+                    voteBtn.disabled = false;
+                    document.querySelectorAll('.poll-option').forEach(option => {
+                        option.classList.remove('disabled');
                     });
                 }
             }
@@ -895,36 +1129,105 @@
                     return;
                 }
 
-                if (hasVoted) {
-                    errorMessage.textContent = 'Umeshapiga kura tayari!';
-                    errorMessage.style.display = 'block';
-                    return;
-                }
-
-                const option = currentPoll.options.find(o => o.id === selectedOption);
-                if (option) {
-                    option.votes++;
-                    currentPoll.totalVotes++;
-                    if (!currentPoll.voters) currentPoll.voters = {};
-                    const sanitizedIp = sanitizeKey(userIp);
-                    currentPoll.voters[sanitizedIp] = {
-                        optionId: selectedOption,
-                        timestamp: new Date().toISOString()
-                    };
-
-                    const pollIndex = allPolls.findIndex(p => p && p.id === currentPoll.id);
-                    if (pollIndex !== -1) {
-                        allPolls[pollIndex] = currentPoll;
-                        savePollsToFirebase();
+                detectVPN(isVpn => {
+                    if (currentPoll.settings.blockVpn === 'yes' && isVpn) {
+                        errorMessage.textContent = 'Hauwezi kupiga kura ukitumia VPN!';
+                        errorMessage.style.display = 'block';
+                        return;
                     }
 
-                    hasVoted = true;
-                    voteBtn.disabled = true;
-                    document.querySelectorAll('.poll-option').forEach(option => {
-                        option.classList.add('disabled');
-                    });
-                    if (shouldShowResults()) showResults();
-                }
+                    if (currentPoll.settings.requireName === 'yes' && !voterName) {
+                        nameFormModal.style.display = 'flex';
+                        voterNameInput.focus();
+                        return;
+                    }
+
+                    checkIfUserVoted();
+                    if (hasVoted) {
+                        errorMessage.textContent = `Umeshapiga kura zaidi ya mara ${currentPoll.settings.voteLimit} zinazoruhusiwa!`;
+                        errorMessage.style.display = 'block';
+                        return;
+                    }
+
+                    const option = currentPoll.options.find(o => o.id === selectedOption);
+                    if (option) {
+                        option.votes++;
+                        currentPoll.totalVotes++;
+                        const sanitizedIp = sanitizeKey(userIp);
+                        if (!currentPoll.voters[sanitizedIp]) {
+                            currentPoll.voters[sanitizedIp] = { votes: 0, name: voterName || 'Anonymous' };
+                        }
+                        currentPoll.voters[sanitizedIp].votes++;
+                        currentPoll.voters[sanitizedIp].optionId = selectedOption;
+                        currentPoll.voters[sanitizedIp].timestamp = new Date().toISOString();
+
+                        if (currentPoll.settings.voteRestriction === 'session') {
+                            sessionVoted = true;
+                        }
+
+                        const pollIndex = allPolls.findIndex(p => p && p.id === currentPoll.id);
+                        if (pollIndex !== -1) {
+                            allPolls[pollIndex] = currentPoll;
+                            savePollsToFirebase();
+                        }
+
+                        hasVoted = currentPoll.settings.voteLimit <= currentPoll.voters[sanitizedIp].votes;
+                        checkIfUserVoted();
+                        if (shouldShowResults()) showResults();
+                        alert(`Kura yako imepokelewa kwa Malosha${voterName ? `, ${voterName}` : ''}`);
+                        voterName = null; // Reset voter name after submission
+                    }
+                });
+            }
+
+            function sharePoll() {
+                if (!currentPoll) return;
+                const pollData = {
+                    id: currentPoll.id,
+                    title: currentPoll.title,
+                    options: currentPoll.options.map(o => o.text),
+                    endTime: currentPoll.endTime,
+                    totalVotes: currentPoll.totalVotes
+                };
+                const encodedPoll = encodeURIComponent(JSON.stringify(pollData));
+                const shareUrl = `${window.location.origin}${window.location.pathname}?poll=${encodedPoll}`;
+                const shareText = `Piga kura: "${currentPoll.title}" - ${shareUrl}`;
+
+                const sharePopup = document.createElement('div');
+                sharePopup.className = 'share-popup';
+                sharePopup.innerHTML = `
+                    <p>Shiriki Kura Hii:</p>
+                    <button class="whatsapp-btn"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                    <button class="x-btn"><i class="fab fa-x-twitter"></i> X</button>
+                    <button class="facebook-btn"><i class="fab fa-facebook-f"></i> Facebook</button>
+                    <button class="instagram-btn"><i class="fab fa-instagram"></i> Instagram</button>
+                    <button class="close-btn"><i class="fas fa-times"></i> Funga</button>
+                `;
+                document.body.appendChild(sharePopup);
+
+                sharePopup.querySelector('.whatsapp-btn').addEventListener('click', () => {
+                    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+                    document.body.removeChild(sharePopup);
+                });
+
+                sharePopup.querySelector('.x-btn').addEventListener('click', () => {
+                    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, '_blank');
+                    document.body.removeChild(sharePopup);
+                });
+
+                sharePopup.querySelector('.facebook-btn').addEventListener('click', () => {
+                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
+                    document.body.removeChild(sharePopup);
+                });
+
+                sharePopup.querySelector('.instagram-btn').addEventListener('click', () => {
+                    window.open(`https://www.instagram.com/?url=${encodeURIComponent(shareUrl)}`, '_blank');
+                    document.body.removeChild(sharePopup);
+                });
+
+                sharePopup.querySelector('.close-btn').addEventListener('click', () => {
+                    document.body.removeChild(sharePopup);
+                });
             }
 
             function showResults() {
@@ -1053,6 +1356,11 @@
                         optionsHtml += `<div>${option.text}: ${option.votes} kura</div>`;
                     });
                     optionsHtml += '</div>';
+                    let votersHtml = '<div><strong>Waliopiga Kura:</strong></div><div class="options-list">';
+                    for (const ip in poll.voters) {
+                        votersHtml += `<div>${poll.voters[ip].name} - Mara ${poll.voters[ip].votes}</div>`;
+                    }
+                    votersHtml += '</div>';
                     card.innerHTML = `
                         <div><strong>Swali:</strong> ${poll.title}</div>
                         <div><strong>Kura:</strong> ${poll.totalVotes}</div>
@@ -1064,6 +1372,11 @@
                             poll.resultsVisibility === 'admin-only' ? 'Admin Pekee' :
                             'Baada ya Kupiga Kura'
                         }</div>
+                        <div><strong>Jina:</strong> ${poll.settings.requireName === 'yes' ? 'Inahitajika' : 'Haitajiki'}</div>
+                        <div><strong>Mara za Kura:</strong> ${poll.settings.voteLimit}</div>
+                        <div><strong>Zuia Kurudia:</strong> ${poll.settings.voteRestriction}</div>
+                        <div><strong>Zuia VPN:</strong> ${poll.settings.blockVpn === 'yes' ? 'Ndio' : 'Hapana'}</div>
+                        ${votersHtml}
                         <button class="edit-btn" data-id="${poll.id}"><span class="icon">✏️</span>Hariri</button>
                         <button class="delete-btn" data-id="${poll.id}"><span class="icon">🗑️</span>Futa</button>
                     `;
@@ -1079,11 +1392,17 @@
                         optionsHtml += `<div>${option.text}: ${option.votes} kura</div>`;
                     });
                     optionsHtml += '</div>';
+                    let votersHtml = '<div><strong>Waliopiga Kura:</strong></div><div class="options-list">';
+                    for (const ip in poll.voters) {
+                        votersHtml += `<div>${poll.voters[ip].name} - Mara ${poll.voters[ip].votes}</div>`;
+                    }
+                    votersHtml += '</div>';
                     card.innerHTML = `
                         <div><strong>Swali:</strong> ${poll.title}</div>
                         <div><strong>Jumla ya Kura:</strong> ${poll.totalVotes}</div>
                         ${optionsHtml}
                         <div><strong>Muda:</strong> Imemalizika</div>
+                        ${votersHtml}
                         <button class="delete-btn" data-id="${poll.id}"><span class="icon">🗑️</span>Futa</button>
                     `;
                     adminHistoryList.appendChild(card);
@@ -1115,6 +1434,10 @@
                             document.getElementById('edit-poll-duration').value = poll.duration;
                             document.getElementById('edit-duration-unit').value = poll.durationUnit;
                             document.getElementById('edit-results-visibility').value = poll.resultsVisibility;
+                            document.getElementById('edit-require-name').value = poll.settings.requireName;
+                            document.getElementById('edit-vote-limit').value = poll.settings.voteLimit;
+                            document.getElementById('edit-vote-restriction').value = poll.settings.voteRestriction;
+                            document.getElementById('edit-block-vpn').value = poll.settings.blockVpn;
                             const editOptionsContainer = document.getElementById('edit-options-container');
                             editOptionsContainer.innerHTML = '';
                             poll.options.forEach(option => {
@@ -1154,8 +1477,21 @@
                 errorModal.style.display = 'none';
             }
 
+            function showChangePasswordModal() {
+                changePasswordModal.style.display = 'flex';
+                currentPasswordInput.focus();
+            }
+
+            function hideChangePasswordModal() {
+                changePasswordModal.style.display = 'none';
+                currentPasswordInput.value = '';
+                newPasswordInput.value = '';
+                confirmPasswordInput.value = '';
+            }
+
             function setupEventListeners() {
                 voteBtn.addEventListener('click', submitVote);
+                sharePollBtn.addEventListener('click', sharePoll);
 
                 themeToggleBtns.forEach(btn => {
                     btn.addEventListener('click', function() {
@@ -1171,7 +1507,7 @@
 
                 passwordSubmit.addEventListener('click', () => {
                     const password = passwordInput.value;
-                    if (password === CREATE_POLL_PASSWORD) {
+                    if (password === adminPassword) {
                         isAdmin = true;
                         adminSection.style.display = 'block';
                         activePollEl.style.display = 'none';
@@ -1203,6 +1539,55 @@
                     editPollForm.style.display = 'none';
                     activePollEl.style.display = 'block';
                     renderPoll();
+                });
+
+                nameSubmitBtn.addEventListener('click', () => {
+                    voterName = voterNameInput.value.trim();
+                    if (!voterName) {
+                        errorMessage.textContent = 'Tafadhali jaza jina lako!';
+                        errorMessage.style.display = 'block';
+                        return;
+                    }
+                    nameFormModal.style.display = 'none';
+                    voterNameInput.value = '';
+                    submitVote();
+                });
+
+                nameCancelBtn.addEventListener('click', () => {
+                    nameFormModal.style.display = 'none';
+                    voterNameInput.value = '';
+                    voterName = null;
+                });
+
+                changePasswordBtn.addEventListener('click', () => {
+                    showChangePasswordModal();
+                });
+
+                changePasswordSubmit.addEventListener('click', () => {
+                    const currentPassword = currentPasswordInput.value;
+                    const newPassword = newPasswordInput.value;
+                    const confirmPassword = confirmPasswordInput.value;
+
+                    if (currentPassword !== adminPassword) {
+                        alert('Nenosiri la sasa sio sahihi!');
+                        return;
+                    }
+                    if (newPassword !== confirmPassword) {
+                        alert('Nenosiri jipya na uthibitisho wake havifanani!');
+                        return;
+                    }
+                    if (!newPassword) {
+                        alert('Tafadhali jaza nenosiri jipya!');
+                        return;
+                    }
+
+                    saveAdminPassword(newPassword);
+                    alert('Nenosiri limebadilishwa kwa mafanikio!');
+                    hideChangePasswordModal();
+                });
+
+                changePasswordCancel.addEventListener('click', () => {
+                    hideChangePasswordModal();
                 });
 
                 document.querySelectorAll('.add-option-btn').forEach(btn => {
@@ -1242,6 +1627,10 @@
                     const durationInput = document.getElementById('poll-duration');
                     const durationUnit = document.getElementById('duration-unit');
                     const resultsVisibility = document.getElementById('results-visibility');
+                    const requireName = document.getElementById('require-name');
+                    const voteLimit = document.getElementById('vote-limit');
+                    const voteRestriction = document.getElementById('vote-restriction');
+                    const blockVpn = document.getElementById('block-vpn');
 
                     if (!titleInput.value.trim()) {
                         alert('Tafadhali jaza swali la kura!');
@@ -1286,7 +1675,13 @@
                         endTime: endTime,
                         isExpired: false,
                         resultsVisibility: resultsVisibility.value,
-                        voters: {}
+                        voters: {},
+                        settings: {
+                            requireName: requireName.value,
+                            voteLimit: parseInt(voteLimit.value) || 1,
+                            voteRestriction: voteRestriction.value,
+                            blockVpn: blockVpn.value
+                        }
                     };
 
                     allPolls = [newPoll];
@@ -1319,6 +1714,10 @@
                     const durationInput = document.getElementById('edit-poll-duration');
                     const durationUnit = document.getElementById('edit-duration-unit');
                     const resultsVisibility = document.getElementById('edit-results-visibility');
+                    const requireName = document.getElementById('edit-require-name');
+                    const voteLimit = document.getElementById('edit-vote-limit');
+                    const voteRestriction = document.getElementById('edit-vote-restriction');
+                    const blockVpn = document.getElementById('edit-block-vpn');
                     const optionInputs = document.querySelectorAll('#edit-options-container .option-input');
 
                     if (!titleInput.value.trim()) {
@@ -1350,6 +1749,7 @@
 
                     const pollIndex = allPolls.findIndex(p => p.id === pollId);
                     if (pollIndex !== -1) {
+                        const existingVoters = allPolls[pollIndex].voters; // Preserve voters
                         allPolls[pollIndex] = {
                             ...allPolls[pollIndex],
                             title: titleInput.value.trim(),
@@ -1362,7 +1762,13 @@
                                 votes: allPolls[pollIndex].options[index] ? allPolls[pollIndex].options[index].votes : 0
                             })),
                             resultsVisibility: resultsVisibility.value,
-                            voters: allPolls[pollIndex].voters || {}
+                            voters: existingVoters, // Keep existing voter data
+                            settings: {
+                                requireName: requireName.value,
+                                voteLimit: parseInt(voteLimit.value) || 1,
+                                voteRestriction: voteRestriction.value,
+                                blockVpn: blockVpn.value
+                            }
                         };
                         currentPoll = allPolls[pollIndex];
                         savePollsToFirebase();
@@ -1389,5 +1795,3 @@
 </body>
 </html>
 
-
- 
